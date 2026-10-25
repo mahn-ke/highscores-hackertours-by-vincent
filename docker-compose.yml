@@ -1,0 +1,19 @@
+#http
+version: "3.8"
+
+services:
+  app:
+    image: ghcr.io/mahn-ke/highscores-hackertours-by-vincent:latest
+    restart: on-failure:5
+    environment:
+      - OAUTH_URL=${OAUTH_URL:-https://sso.by.vincent.mahn.ke/realms/sso.by.vincent.mahn.ke}
+      - OAUTH_CONSOLE_3DS_CLIENT_ID=${OAUTH_CONSOLE_3DS_CLIENT_ID:?required}
+      - OAUTH_CONSOLE_XBOX_CLIENT_ID=${OAUTH_CONSOLE_XBOX_CLIENT_ID:?required}
+      - DATABASE_PATH=/data/scores.sqlite
+    volumes:
+      - scores:/data
+    ports:
+      - "3020:3000"
+
+volumes:
+  scores:
