@@ -1,0 +1,6 @@
+{
+    "name": "highscores-hackertours-by-vincent",
+    "scripts": {
+        "start": "node main.js"
+    }
+}
