@@ -103,7 +103,7 @@ Keycloak and replaced on that platform's consoles.
 | OAUTH_CONSOLE_3DS_CLIENT_ID | Required, allowed 3DS `azp` |
 | OAUTH_CONSOLE_XBOX_CLIENT_ID | Required, distinct allowed Xbox `azp` |
 
-Compose publishes host port **3020**, and stores SQLite in named volume `scores`.
+Compose publishes host port **3021** (3020 is already used by Multiworld), and stores SQLite in named volume `scores`.
 The process runs as the unprivileged `node` user. SQLite WAL mode preserves
 committed scores across restarts. The generated backup/restore workflows cover
 named Compose volumes. For a guaranteed consistent manual snapshot, stop the app

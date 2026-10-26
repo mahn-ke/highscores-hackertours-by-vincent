@@ -13,7 +13,7 @@ services:
     volumes:
       - scores:/data
     ports:
-      - "3020:3000"
+      - "3021:3000"
 
 volumes:
   scores:
