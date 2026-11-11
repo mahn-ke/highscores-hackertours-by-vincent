@@ -14,6 +14,7 @@ export function createApp({
     issuer = process.env.OAUTH_URL || 'https://sso.by.vincent.mahn.ke/realms/sso.by.vincent.mahn.ke',
     console3ds = process.env.OAUTH_CONSOLE_3DS_CLIENT_ID,
     consoleXbox = process.env.OAUTH_CONSOLE_XBOX_CLIENT_ID,
+    consoleSwitch = process.env.OAUTH_CONSOLE_SWITCH_CLIENT_ID,
     jwks,
     now = () => Date.now(),
     rateLimit = 60,
@@ -21,8 +22,13 @@ export function createApp({
     if (!console3ds || !consoleXbox || console3ds === consoleXbox) {
         throw new Error('Two distinct OAUTH_CONSOLE_3DS_CLIENT_ID and OAUTH_CONSOLE_XBOX_CLIENT_ID values are required');
     }
+    // Optional until every deployment has the Switch's service account; when set it must be a client of its own.
+    if (consoleSwitch && (consoleSwitch === console3ds || consoleSwitch === consoleXbox)) {
+        throw new Error('OAUTH_CONSOLE_SWITCH_CLIENT_ID must differ from the 3DS and Xbox client ids');
+    }
     const keys = jwks || createRemoteJWKSet(new URL(`${issuer.replace(/\/$/, '')}/protocol/openid-connect/certs`));
     const clients = new Map([[console3ds, '3ds'], [consoleXbox, 'xbox']]);
+    if (consoleSwitch) clients.set(consoleSwitch, 'switch');
     const db = new DatabaseSync(databasePath);
     db.exec(`PRAGMA journal_mode = WAL;
         CREATE TABLE IF NOT EXISTS scores (

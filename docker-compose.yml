@@ -9,6 +9,7 @@ services:
       - OAUTH_URL=${OAUTH_URL:-https://sso.by.vincent.mahn.ke/realms/sso.by.vincent.mahn.ke}
       - OAUTH_CONSOLE_3DS_CLIENT_ID=${OAUTH_CONSOLE_3DS_CLIENT_ID:?required}
       - OAUTH_CONSOLE_XBOX_CLIENT_ID=${OAUTH_CONSOLE_XBOX_CLIENT_ID:?required}
+      - OAUTH_CONSOLE_SWITCH_CLIENT_ID=${OAUTH_CONSOLE_SWITCH_CLIENT_ID:-}
       - DATABASE_PATH=/data/scores.sqlite
     volumes:
       - scores:/data
