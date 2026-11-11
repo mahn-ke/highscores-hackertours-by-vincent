@@ -3,7 +3,7 @@ const score = {
     properties: {
         name: { type: 'string', pattern: '^[A-Z0-9._-]{1,3}$' },
         ms: { type: 'integer', minimum: 1, maximum: 5999999 },
-        platform: { type: 'string', enum: ['3ds', 'xbox'] },
+        platform: { type: 'string', enum: ['3ds', 'xbox', 'switch'] },
         achievedAt: { type: 'integer', minimum: 1577836800, description: 'Unix seconds; no later than server time + 300 seconds.' },
     },
 };
@@ -11,7 +11,7 @@ const submission = {
     type: 'object', additionalProperties: false, required: ['id', 'course', 'name', 'ms', 'achievedAt'],
     properties: {
         id: { type: 'string', pattern: '^(?:[a-fA-F0-9]{32}|[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})$', description: 'Client-generated UUID or 32 hex digits; case and hyphens normalized.' },
-        course: { type: 'string', pattern: '^[a-z0-9_-]{1,31}$', description: 'Racemap venue ID shared by both console ports.' },
+        course: { type: 'string', pattern: '^[a-z0-9_-]{1,31}$', description: 'Racemap venue ID shared by the console ports.' },
         name: score.properties.name, ms: score.properties.ms, achievedAt: score.properties.achievedAt,
     },
 };
@@ -26,7 +26,7 @@ const storedScore = {
 
 export const openapi = {
     openapi: '3.0.3',
-    info: { title: 'Hackertours Racing Highscores API', version: '1.0.0', description: 'Shared public leaderboard for Nintendo 3DS and Xbox 360. Authenticated console submissions are client-reported, not cheat-proof.' },
+    info: { title: 'Hackertours Racing Highscores API', version: '1.0.0', description: 'Shared public leaderboard for Nintendo 3DS, Xbox 360 and Nintendo Switch. Authenticated console submissions are client-reported, not cheat-proof.' },
     servers: [{ url: '/' }],
     components: { securitySchemes: { bearer: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } }, schemas: { Score: score, Submission: submission, StoredScore: storedScore } },
     paths: {
