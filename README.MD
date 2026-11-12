@@ -43,7 +43,7 @@ these five fields:
 Keep the same id across retries. After validating the request, a duplicate id
 returns the original row unchanged, even when the new valid fields differ.
 Both 200 and 201 return `{id,course,name,ms,platform,achievedAt}`. The platform is
-assigned exclusively from the token's `azp` claim (`3ds`, `xbox` or `switch`); never send it
+assigned exclusively from the token's `azp` claim (`3ds`, `xbox`, `switch` or `gba`); never send it
 in the body. Sync the console clock before submitting; do not send milliseconds
 for `achievedAt`.
 
@@ -63,6 +63,7 @@ Terraform in `mahn-ke/repos` creates these separate service accounts:
 | Nintendo 3DS | `highscores-hackertours-3ds` | Matching client id and secret in private `config.ini` |
 | Xbox 360 | `highscores-hackertours-xbox` | Matching client id and secret in private `config.ini` |
 | Nintendo Switch | `highscores-hackertours-switch` | Matching client id and secret in private `config.ini` |
+| Game Boy Advance | `highscores-hackertours-gba` | Secret in `HT_CLIENT_SECRET` of the GBA's link server (it submits for the GBA) |
 
 Obtain a token over HTTPS (do not disable certificate verification):
 
@@ -104,6 +105,7 @@ Keycloak and replaced on that platform's consoles.
 | OAUTH_CONSOLE_3DS_CLIENT_ID | Required, allowed 3DS `azp` |
 | OAUTH_CONSOLE_XBOX_CLIENT_ID | Required, distinct allowed Xbox `azp` |
 | OAUTH_CONSOLE_SWITCH_CLIENT_ID | Optional, distinct allowed Switch `azp`; without it Switch tokens get 403 |
+| OAUTH_CONSOLE_GBA_CLIENT_ID | Optional, distinct allowed GBA `azp`; without it GBA tokens get 403 |
 
 Compose publishes host port **3021** (3020 is already used by Multiworld), and stores SQLite in named volume `scores`.
 The process runs as the unprivileged `node` user. SQLite WAL mode preserves

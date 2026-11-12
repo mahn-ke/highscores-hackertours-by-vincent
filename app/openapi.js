@@ -3,7 +3,7 @@ const score = {
     properties: {
         name: { type: 'string', pattern: '^[A-Z0-9._-]{1,3}$' },
         ms: { type: 'integer', minimum: 1, maximum: 5999999 },
-        platform: { type: 'string', enum: ['3ds', 'xbox', 'switch'] },
+        platform: { type: 'string', enum: ['3ds', 'xbox', 'switch', 'gba'] },
         achievedAt: { type: 'integer', minimum: 1577836800, description: 'Unix seconds; no later than server time + 300 seconds.' },
     },
 };
@@ -26,7 +26,7 @@ const storedScore = {
 
 export const openapi = {
     openapi: '3.0.3',
-    info: { title: 'Hackertours Racing Highscores API', version: '1.0.0', description: 'Shared public leaderboard for Nintendo 3DS, Xbox 360 and Nintendo Switch. Authenticated console submissions are client-reported, not cheat-proof.' },
+    info: { title: 'Hackertours Racing Highscores API', version: '1.0.0', description: 'Shared public leaderboard for Nintendo 3DS, Xbox 360, Nintendo Switch and Game Boy Advance (through its link server). Authenticated console submissions are client-reported, not cheat-proof.' },
     servers: [{ url: '/' }],
     components: { securitySchemes: { bearer: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } }, schemas: { Score: score, Submission: submission, StoredScore: storedScore } },
     paths: {
