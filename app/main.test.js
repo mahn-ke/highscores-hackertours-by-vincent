@@ -16,7 +16,7 @@ const token = async (azp = 'console-3ds', changes = {}) => new SignJWT({ azp, ..
     .sign(privateKey);
 const valid = { id: '12345678-1234-1234-1234-123456789abc', course: 'ccchh', name: 'VIM', ms: 12345, achievedAt: nowSeconds };
 async function fixture(t, options = {}) {
-    const server = createApp({ databasePath: ':memory:', issuer, console3ds: 'console-3ds', consoleXbox: 'console-xbox', consoleSwitch: 'console-switch', jwks, now: () => nowSeconds * 1000, ...options });
+    const server = createApp({ databasePath: ':memory:', issuer, console3ds: 'console-3ds', consoleXbox: 'console-xbox', consoleSwitch: 'console-switch', consoleGba: 'console-gba', jwks, now: () => nowSeconds * 1000, ...options });
     server.listen(0, '127.0.0.1');
     await once(server, 'listening');
     t.after(() => server.listening ? new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }) : undefined);
@@ -46,12 +46,15 @@ test('public endpoints, ranking, platform attribution and idempotency', async t 
     const fromSwitch = await post({ ...valid, id: 'f'.repeat(32), ms: 20000 }, await token('console-switch'));
     assert.equal(fromSwitch.status, 201);
     assert.equal((await fromSwitch.json()).platform, 'switch');
+    const fromGba = await post({ ...valid, id: 'a1'.repeat(16), ms: 30000 }, await token('console-gba'));
+    assert.equal(fromGba.status, 201);
+    assert.equal((await fromGba.json()).platform, 'gba');
     assert.equal((await post({ ...valid, id: 'd'.repeat(32), course: 'another' })).status, 201);
     const scores = await (await fetch(`${base}/api/scores/ccchh`)).json();
-    assert.deepEqual(scores.map(s => [s.ms, s.platform]), [[1000, '3ds'], [12345, 'xbox'], [12345, '3ds'], [20000, 'switch']]);
+    assert.deepEqual(scores.map(s => [s.ms, s.platform]), [[1000, '3ds'], [12345, 'xbox'], [12345, '3ds'], [20000, 'switch'], [30000, 'gba']]);
     assert.deepEqual(Object.keys(scores[0]).sort(), ['achievedAt', 'ms', 'name', 'platform']);
     assert.equal((await (await fetch(`${base}/api/scores/ccchh?limit=1`)).json()).length, 1);
-    assert.deepEqual(await (await fetch(`${base}/api/courses`)).json(), [{ course: 'another', count: 1, bestMs: 12345 }, { course: 'ccchh', count: 4, bestMs: 1000 }]);
+    assert.deepEqual(await (await fetch(`${base}/api/courses`)).json(), [{ course: 'another', count: 1, bestMs: 12345 }, { course: 'ccchh', count: 5, bestMs: 1000 }]);
 });
 
 test('reject malformed submissions and invalid limits without inserting rows', async t => {
@@ -120,9 +123,17 @@ test('fails closed when console client configuration is missing or ambiguous', (
     for (const consoleSwitch of ['a', 'b']) {
         assert.throws(() => createApp({ databasePath: ':memory:', console3ds: 'a', consoleXbox: 'b', consoleSwitch }), /must differ/);
     }
+    for (const consoleGba of ['a', 'b', 'c']) {
+        assert.throws(() => createApp({ databasePath: ':memory:', console3ds: 'a', consoleXbox: 'b', consoleSwitch: 'c', consoleGba }), /must differ/);
+    }
 });
 
 test('without a Switch client id a Switch token is refused', async t => {
     const { post } = await fixture(t, { consoleSwitch: '' });
     assert.equal((await post(valid, await token('console-switch'))).status, 403);
+});
+
+test('without a GBA client id a GBA token is refused', async t => {
+    const { post } = await fixture(t, { consoleGba: '' });
+    assert.equal((await post(valid, await token('console-gba'))).status, 403);
 });

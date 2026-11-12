@@ -15,6 +15,7 @@ export function createApp({
     console3ds = process.env.OAUTH_CONSOLE_3DS_CLIENT_ID,
     consoleXbox = process.env.OAUTH_CONSOLE_XBOX_CLIENT_ID,
     consoleSwitch = process.env.OAUTH_CONSOLE_SWITCH_CLIENT_ID,
+    consoleGba = process.env.OAUTH_CONSOLE_GBA_CLIENT_ID,
     jwks,
     now = () => Date.now(),
     rateLimit = 60,
@@ -26,9 +27,14 @@ export function createApp({
     if (consoleSwitch && (consoleSwitch === console3ds || consoleSwitch === consoleXbox)) {
         throw new Error('OAUTH_CONSOLE_SWITCH_CLIENT_ID must differ from the 3DS and Xbox client ids');
     }
+    // The GBA's link server submits for the GBA (it has no network of its own); optional like the Switch's.
+    if (consoleGba && [console3ds, consoleXbox, consoleSwitch].includes(consoleGba)) {
+        throw new Error('OAUTH_CONSOLE_GBA_CLIENT_ID must differ from the other consoles\' client ids');
+    }
     const keys = jwks || createRemoteJWKSet(new URL(`${issuer.replace(/\/$/, '')}/protocol/openid-connect/certs`));
     const clients = new Map([[console3ds, '3ds'], [consoleXbox, 'xbox']]);
     if (consoleSwitch) clients.set(consoleSwitch, 'switch');
+    if (consoleGba) clients.set(consoleGba, 'gba');
     const db = new DatabaseSync(databasePath);
     db.exec(`PRAGMA journal_mode = WAL;
         CREATE TABLE IF NOT EXISTS scores (
